@@ -678,8 +678,8 @@ static long vspm_ioctl_entry32(
 	}
 
 	entry_req->priority = compat_req->priority;
-	entry_req->user_data = VSPM_IF_INT_TO_VP(compat_req->user_data);
-	entry_req->cb_func = VSPM_IF_INT_TO_CP(compat_req->cb_func);
+	entry_req->user_data = VSPM_IF_INT_TO_UP(compat_req->user_data);
+	entry_req->cb_func = VSPM_IF_INT_TO_UP(compat_req->cb_func);
 
 	if (compat_req->job_param != 0) {
 		/* copy job parameter */
@@ -888,7 +888,7 @@ static long vspm_ioctl_wait_interrupt32(
 		}
 
 		compat_rsp.ercd = (int)cb_data->rsp.ercd;
-		compat_rsp.cb_func = VSPM_IF_CP_TO_INT(cb_data->rsp.cb_func);
+		compat_rsp.cb_func = VSPM_IF_UP_TO_INT(cb_data->rsp.cb_func);
 		compat_rsp.job_id = (unsigned int)cb_data->rsp.job_id;
 		compat_rsp.result = (int)cb_data->rsp.result;
 		compat_rsp.user_data =

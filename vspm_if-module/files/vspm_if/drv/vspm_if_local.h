@@ -80,9 +80,7 @@ extern struct platform_device *g_vspmif_pdev;
 	((void *)((unsigned long)(addr)))
 #define VSPM_IF_INT_TO_UP(addr) \
 	((void __user *)((unsigned long)(addr)))
-#define VSPM_IF_INT_TO_CP(addr) \
-	((PFN_VSPM_COMPLETE_CALLBACK)((unsigned long)(addr)))
-#define VSPM_IF_CP_TO_INT(addr) \
+#define VSPM_IF_UP_TO_INT(addr) \
 	((unsigned int)((unsigned long)(addr)))
 
 /* work buffer structure */

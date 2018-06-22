@@ -79,8 +79,8 @@ struct vspm_if_entry_t {
 	struct vspm_if_entry_req_t {
 		char priority;
 		struct vspm_job_t *job_param;
-		void *user_data;
-		PFN_VSPM_COMPLETE_CALLBACK cb_func;
+		void __user *user_data;
+		void __user *cb_func;
 	} req;
 	struct vspm_if_entry_rsp_t {
 		long ercd;
@@ -90,10 +90,10 @@ struct vspm_if_entry_t {
 
 struct vspm_if_cb_rsp_t {
 	long ercd;
-	PFN_VSPM_COMPLETE_CALLBACK cb_func;
+	void __user *cb_func;
 	unsigned long job_id;
 	long result;
-	void *user_data;
+	void __user *user_data;
 };
 
 #define VSPM_IOC_CMD_INIT \
