@@ -421,6 +421,8 @@ static long vspm_ioctl_get_status(
 static long vspm_ioctl_wait_interrupt(
 	struct vspm_if_private_t *priv, unsigned int cmd, unsigned long arg)
 {
+	struct vspm_if_cb_data_t *cb_data;
+	unsigned long lock_flag;
 	long ercd = 0;
 
 	/* get user process information */
@@ -431,7 +433,18 @@ static long vspm_ioctl_wait_interrupt(
 	if (wait_for_completion_interruptible(&priv->wait_interrupt))
 		return -EINTR;
 
+	/* get response data */
+	spin_lock_irqsave(&priv->lock, lock_flag);
 	if (list_empty(&priv->cb_data.list)) {
+		cb_data = NULL;
+	} else {
+		cb_data = list_first_entry(
+			&priv->cb_data.list, struct vspm_if_cb_data_t, list);
+		list_del(&cb_data->list);
+	}
+	spin_unlock_irqrestore(&priv->lock, lock_flag);
+
+	if (!cb_data) {
 		struct vspm_if_cb_rsp_t rsp;
 
 		/* set response data (ercd = -1) */
@@ -444,16 +457,6 @@ static long vspm_ioctl_wait_interrupt(
 			return -EFAULT;
 		}
 	} else {
-		struct vspm_if_cb_data_t *cb_data;
-		unsigned long lock_flag;
-
-		/* get response data */
-		spin_lock_irqsave(&priv->lock, lock_flag);
-		cb_data = list_first_entry(
-			&priv->cb_data.list, struct vspm_if_cb_data_t, list);
-		list_del(&cb_data->list);
-		spin_unlock_irqrestore(&priv->lock, lock_flag);
-
 		/* HGO result */
 		if (cb_data->vsp_hgo.virt_addr) {
 			unsigned long tmp_addr =
@@ -814,6 +817,8 @@ static long vspm_ioctl_get_status32(
 static long vspm_ioctl_wait_interrupt32(
 	struct vspm_if_private_t *priv, unsigned int cmd, unsigned long arg)
 {
+	struct vspm_if_cb_data_t *cb_data;
+	unsigned long lock_flag;
 	long ercd = 0;
 
 	/* for 32bit */
@@ -829,7 +834,18 @@ static long vspm_ioctl_wait_interrupt32(
 		return -EINTR;
 	}
 
+	/* get response data */
+	spin_lock_irqsave(&priv->lock, lock_flag);
 	if (list_empty(&priv->cb_data.list)) {
+		cb_data = NULL;
+	} else {
+		cb_data = list_first_entry(
+			&priv->cb_data.list, struct vspm_if_cb_data_t, list);
+		list_del(&cb_data->list);
+	}
+	spin_unlock_irqrestore(&priv->lock, lock_flag);
+
+	if (!cb_data) {
 		/* set response data (ercd = -1) */
 		memset(&compat_rsp, 0, sizeof(struct vspm_compat_cb_rsp_t));
 		compat_rsp.ercd = -1;
@@ -843,16 +859,6 @@ static long vspm_ioctl_wait_interrupt32(
 			return -EFAULT;
 		}
 	} else {
-		struct vspm_if_cb_data_t *cb_data;
-		unsigned long lock_flag;
-
-		/* get response data */
-		spin_lock_irqsave(&priv->lock, lock_flag);
-		cb_data = list_first_entry(
-			&priv->cb_data.list, struct vspm_if_cb_data_t, list);
-		list_del(&cb_data->list);
-		spin_unlock_irqrestore(&priv->lock, lock_flag);
-
 		/* HGO result */
 		if (cb_data->vsp_hgo.virt_addr) {
 			unsigned long tmp_addr =
