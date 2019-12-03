@@ -828,6 +828,18 @@ static int set_fdp_fproc_par(
 		fproc->fproc.fcp_par = &fproc->fcp;
 	}
 
+	/* copy fdp_ipc_t parameter */
+	if (fproc->fproc.ipc_par) {
+		if (copy_from_user(
+				&fproc->ipc,
+				(void __user *)fproc->fproc.ipc_par,
+				sizeof(struct fdp_ipc_t))) {
+			EPRINT("failed to copy of fdp_ipc_t\n");
+			return -EFAULT;
+		}
+		fproc->fproc.ipc_par = &fproc->ipc;
+	}
+
 	return 0;
 }
 
